@@ -123,7 +123,8 @@ class Prompt{
 // Get user Airline type
 class AirlineType{
     // Encapsulation - storing values in private variables
-    public int Travtax, Bagfee, Addfee, FlightIns, Cap;
+    public double Travtax, Bagfee, Addfee, FlightIns;
+    int Cap;
     public String Type;
 
     private JRadioButton C1, C2, C3;
@@ -213,10 +214,10 @@ class AirlineType{
 
 // Get passenger count and information
 class Passenger{
-    public int nop, InsVal, counter = 0;
+    public int nop, counter = 0;
     public String Ins;
     // Gets passenger count
-    public void PassNum(int FlightIns, int Travtax, int Bagfee, int Addfee, int Cap, String Type, int CFare, String Dest, String Tag, String WayT){
+    public void PassNum(double FlightIns, double Travtax, double Bagfee, double Addfee, int Cap, String Type, double CFare, String Dest, String Tag, String WayT){
         JFrame FrPass = new JFrame("Passengers");
         JPanel PlPass = new JPanel();
         FrPass.setBounds(530, 260, 350, 200);
@@ -247,7 +248,6 @@ class Passenger{
             public void actionPerformed(ActionEvent e) {
                 try {
                     nop = Integer.parseInt(cnt.getText());
-                    System.out.println(nop);
                     if (nop > Cap){
                         JOptionPane.showMessageDialog(null, "Number of Passengers cannot exceed Plane Capacity", "Error", JOptionPane.ERROR_MESSAGE);
                         cnt.setText("");
@@ -264,8 +264,8 @@ class Passenger{
         });
     }
     // Get passenger info
-    public void PassInfo(int FlightIns, int Travtax, int Bagfee, int Addfee, int Cap, String Type, int CFare, String Dest, String Tag, String WayT){
-        int[] Pname = new int[nop];
+    public void PassInfo(double FlightIns, double Travtax, double Bagfee, double Addfee, int Cap, String Type, double CFare, String Dest, String Tag, String WayT){
+        String[] Pname = new String[nop];
         int[] Page = new int[nop];
         JButton Add, Proc;
 
@@ -306,6 +306,105 @@ class Passenger{
         PlInf.add(PassNo);
         Proc.setEnabled(false);
 
+        //Frame for insurance
+        JFrame FrIns = new JFrame("Flight Insurance");
+        JPanel PlIns = new JPanel();
+        JLabel LblI = new JLabel("<html><u>Avail Flight Insurance?</u></html>");
+        JButton Yes, No;
+        Yes = new JButton("Yes");
+        No = new JButton("No");
+        FrIns.setResizable(false);
+        FrIns.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        FrIns.getContentPane().add(PlIns);
+        PlIns.setLayout(null);
+
+        FrIns.setBounds(530, 260, 350, 200);
+        PlIns.setBounds(0, 0, 350, 200);
+        LblI.setBounds(75, 25, 200, 40);
+        Yes.setBounds(20, 90, 100, 60);
+        No.setBounds(215, 90, 100, 60);
+        LblI.setFont(new Font("Arial", Font.BOLD, 16));
+
+        PlIns.add(Yes);
+        PlIns.add(No);
+        PlIns.add(LblI);
+
+        Add.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    Pname[counter] = Name.getText();
+                    Page[counter] = Integer.parseInt(Age.getText());
+                    if (Pname[counter].length() < 4 || Pname[counter] == ""){
+                        JOptionPane.showMessageDialog(null, "Enter a valid NAME", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    else if(nop == 1 && Page[counter] < 19){
+                        JOptionPane.showMessageDialog(null, "Minors/Child are not permitted to travel alone!", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    else if (Page[counter] < 0 || Page[counter] > 120){
+                        JOptionPane.showMessageDialog(null, "Invalid Age!", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    else {
+                        if (counter < nop) {
+                            Name.setText("");
+                            Age.setText("");
+                            counter++;
+                            PassNo.setText("Passenger " + (counter + 1));
+                        }
+                    }
+                    if (counter == nop){
+                        boolean allLower = true;
+                        for (int i : Page){
+                            if (i >= 19) {
+                                allLower = false;
+                                break;
+                            }
+                        }
+                        if (allLower){
+                            JOptionPane.showMessageDialog(null, "Must be accompanied by at least 1 adult!", "Error", JOptionPane.ERROR_MESSAGE);
+                            counter = 0;
+                            PassNo.setText("Passenger " + (counter + 1));
+                        }
+                        else {
+                            Name.setEnabled(false);
+                            Age.setEnabled(false);
+                            Add.setEnabled(false);
+                            Proc.setEnabled(true);
+                            JOptionPane.showMessageDialog(null, "Max input reached", "Notification", JOptionPane.WARNING_MESSAGE);
+                        }
+                    }
+                }
+                catch (Exception i){
+                    JOptionPane.showMessageDialog(null, "Invalid Input!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        Proc.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                FrIns.setVisible(true);
+            }
+        });
+        Transaction t = new Transaction();
+        Yes.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Ins = "Yes";
+                FrInf.dispose();
+                FrIns.dispose();
+                t.ComputeReceipt(FlightIns, Travtax, Bagfee, Addfee, Cap, Type, CFare, Dest, Tag, WayT, Ins, nop, Pname, Page);
+            }
+        });
+        No.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Ins = "No";
+                FrInf.dispose();
+                FrIns.dispose();
+                t.ComputeReceipt(FlightIns, Travtax, Bagfee, Addfee, Cap, Type, CFare, Dest, Tag, WayT, Ins, nop, Pname, Page);
+            }
+        });
+
     }
 }
 
@@ -313,13 +412,13 @@ class Passenger{
 class Destination{
     // Encapsulation
     private JRadioButton D1, D2, D3, D4, D5, D6, D7, D8, D9, D10;
-    public int CFare;
+    public double CFare;
     public String Dest, Tag;
     public String WayT;
     public JButton One, Two, Cont;
 
     //Choose User's Flight Location
-    public void Location(int FlightIns, int Travtax, int Bagfee, int Addfee, int Cap, String Type){
+    public void Location(double FlightIns, double Travtax, double Bagfee, double Addfee, int Cap, String Type){
         // Destination Holding Frame
         JFrame FrDes = new JFrame("Destination");
         JPanel PlDes = new JPanel();
@@ -572,7 +671,7 @@ class Destination{
         });
     }
     // Choose whether round-trip or one-way flight
-    public void Trip(int FlightIns, int Travtax, int Bagfee, int Addfee, int Cap, String Type){
+    public void Trip(double FlightIns, double Travtax, double Bagfee, double Addfee, int Cap, String Type){
         One = new JButton("One-Way");
         Two = new JButton("Round-Trip");
         JFrame FrWay = new JFrame("Trip Info");
@@ -614,8 +713,193 @@ class Destination{
 }
 // Print Receipt
 // Inheritance
-class Transaction extends AirlineType{
+class Transaction extends Prompt{
     //Generate Transaction Number
-    Random TransNo = new Random();
+    Random random = new Random();
+    StringBuilder sb = new StringBuilder();
+    double ToPay = 0;
+    String info = "";
+    double payment, change;
+
+    // Get payments and display receipt
+    public void ComputeReceipt(double FlightIns, double Travtax, double Bagfee, double Addfee, int Cap, String Type, double CFare, String Dest, String Tag, String WayT, String Ins, int nop, String[] Pname, int[] Page){
+        double[] total = new double[nop];
+
+        for (int x = 0; x < nop; x++){
+            if (Ins.equals("Yes")){
+                if (WayT.equals("RoundTrip")){
+                    if (Page[x] >= 60){
+                        total[x] = ((FlightIns + Bagfee + Addfee + CFare) * 0.8) * 2;
+                    }
+                    else {
+                        total[x] = (FlightIns + Travtax + Bagfee + Addfee + CFare) * 2;
+                    }
+                }
+                else {
+                    if (Page[x] >= 60){
+                        total[x] = ((FlightIns + Bagfee + Addfee + CFare) * 0.8);
+                    }
+                    else {
+                        total[x] = (FlightIns + Travtax + Bagfee + Addfee + CFare);
+                    }
+                }
+            }
+            else {
+                if (WayT.equals("RoundTrip")){
+                    if (Page[x] >= 60){
+                        total[x] = ((Bagfee + Addfee + CFare) * 0.8) * 2;
+                    }
+                    else {
+                        total[x] = (Travtax + Bagfee + Addfee + CFare) * 2;
+                    }
+                }
+                else {
+                    if (Page[x] >= 60){
+                        total[x] = ((Bagfee + Addfee + CFare) * 0.8);
+                    }
+                    else {
+                        total[x] = (Travtax + Bagfee + Addfee + CFare);
+                    }
+                }
+            }
+            ToPay += total[x];
+        }
+
+        // Frame for payment
+        JFrame FrPay = new JFrame("Payment");
+        JPanel PlPay = new JPanel();
+        FrPay.setVisible(true);
+        FrPay.setResizable(false);
+        FrPay.getContentPane().add(PlPay);
+        FrPay.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        PlPay.setLayout(null);
+        JLabel pay = new JLabel("Total Expenses to Pay: " + ToPay);
+        JTextField ment = new JTextField();
+        JButton ppay = new JButton("Pay");
+
+        FrPay.setBounds(530, 260, 350, 200);
+        PlPay.setBounds(0, 0, 350, 200);
+        pay.setBounds(85, 15, 200, 40);
+        ment.setBounds(60, 50, 220, 25);
+        ppay.setBounds(110, 90, 130, 40);
+
+
+        PlPay.add(pay);
+        PlPay.add(ment);
+        PlPay.add(ppay);
+
+        ppay.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    payment = Double.parseDouble(ment.getText());
+                    if (payment < ToPay){
+                        JOptionPane.showMessageDialog(null, "Please pay the Total Expenses!", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    else {
+                        change = payment - ToPay;
+                        FrPay.dispose();
+                        Display(FlightIns, Travtax, Bagfee, Addfee, Cap, Type, CFare, Dest, Tag, WayT, Ins, nop, Pname, Page, total);
+                    }
+                }
+                catch (Exception i){
+                    JOptionPane.showMessageDialog(null, "Invalid Input!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+    }
+    public void Display(double FlightIns, double Travtax, double Bagfee, double Addfee, int Cap, String Type, double CFare, String Dest, String Tag, String WayT, String Ins, int nop, String[] Pname, int[] Page, double[] total){
+        // Random Transaction Code generator
+        for (int i = 0; i < 6; i++) {
+            int randomInt = random.nextInt(62);
+            char randomChar;
+            if (randomInt < 10) {
+                randomChar = (char)('0' + randomInt);
+            } else if (randomInt < 36) {
+                randomChar = (char)('A' + (randomInt - 10));
+            } else {
+                randomChar = (char)('a' + (randomInt - 36));
+            }
+            sb.append(randomChar);
+        }
+
+        String randomString = "MA" + sb.toString();
+
+        JFrame receipt = new JFrame("Receipt");
+        JPanel Plrec = new JPanel();
+        receipt.setResizable(false);
+        receipt.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        receipt.setVisible(true);
+        receipt.setBounds(500, 50, 410, 650);
+        receipt.getContentPane().add(Plrec);
+        JPanel Pl2 = new JPanel();
+        Pl2.setBounds(10, 10, 400, 90);
+        receipt.getContentPane().add(Pl2);
+        Pl2.setLayout(null);
+        JButton proc = new JButton("Proceed");
+        proc.setBounds(320, 5, 85, 25);
+        Pl2.add(proc);
+
+        info += "Official Receipt of Transaction";
+        info += "\n\n\nThis serves as the Control No. of the Transaction: ";
+        info += randomString;
+        info += "\nDestination: " + Dest;
+        info += "\nAirplane Class: " + Type;
+        info += "\nFlight Type: " + Tag;
+        info += "\n===================================================";
+        info += "\nInformation reflected as follows\n";
+        info += "\nName:\nAge:\nClass Fare:\nBaggage Fee:\nAdditional Fee:\nTravel Tax:\nTotal Fee:";
+        info += "\n===================================================\n";
+        for (int j = 0; j < nop; j++){
+            double value = 0;
+            if (Page[j] > 59){
+                info += "Passenger " + (j + 1) + "\n";
+                info += "Name: " + Pname[j] + "\n";
+                info += "Age: " + Page[j] + "\n";
+                info += String.format("%-31s PHP%,.2f%n","Class Fare: ",CFare);
+                info += String.format("%-27s PHP%,.2f%n","Baggage Fee: ", Bagfee);
+                info += String.format("%-29s PHP%,.2f%n","Additional Fee: ",Addfee);
+                info += String.format("%-32s PHP%,.2f%n","Travel Tax: ",value);
+                info += String.format("%-32s PHP%,.2f%n","Total Fee:",total[j]);
+                info += "\n--Senior Citizens are Tax Exempted--";
+                info += "\n===================================================\n";
+            }
+            else {
+                info += "Passenger " + (j + 1) + "\n";
+                info += "Name: " + Pname[j] + "\n";
+                info += "Age: " + Page[j] + "\n";
+                info += String.format("%-31s PHP%,.2f%n", "Class Fare: ", CFare);
+                info += String.format("%-27s PHP%,.2f%n", "Baggage Fee: ", Bagfee);
+                info += String.format("%-29s PHP%,.2f%n", "Additional Fee: ", Addfee);
+                info += String.format("%-32s PHP%,.2f%n", "Travel Tax: ", Travtax);
+                info += String.format("%-32s PHP%,.2f%n", "Total Fee:", total[j]);
+                info += "\n===================================================\n";
+            }
+        }
+        info += "Trip Route: " + WayT + "\n";
+        info += "Insurance Availed: " + Ins + "\n";
+        if (Ins.equals("Yes")){
+            info += "Insurance Cost: " + FlightIns + "\n";
+        }
+        else {
+            info += "Insurance Cost: 0\n";
+        }
+        info += "\n===================================================\n";
+        info += String.format("%-45s PHP%,.2f%n","Total Fees for all Passengers: ",ToPay);
+        info += String.format("%-58s PHP%,.2f%n","Amount paid: ",payment);
+        info += String.format("%-62s PHP%,.2f%n","Change: ",change);
+        info += "\nThank you for choosing Merc Airlines";
+        info += "\n~Serving you in achieving your TRAVEL GOALS!~";
+
+
+        JTextArea text = new JTextArea(info);
+        JScrollPane scroll = new JScrollPane(text);
+        scroll.setPreferredSize(new Dimension(390,500));
+        Plrec.add(scroll);
+        text.setEditable(false);
+        receipt.getContentPane().setComponentZOrder(Plrec, 1);
+        receipt.getContentPane().setComponentZOrder(Pl2, 0);
+
+    }
 }
 
