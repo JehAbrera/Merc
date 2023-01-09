@@ -825,21 +825,6 @@ class Transaction extends Prompt{
 
         String randomString = "MA" + sb.toString();
 
-        JFrame receipt = new JFrame("Receipt");
-        JPanel Plrec = new JPanel();
-        receipt.setResizable(false);
-        receipt.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        receipt.setVisible(true);
-        receipt.setBounds(500, 50, 410, 650);
-        receipt.getContentPane().add(Plrec);
-        JPanel Pl2 = new JPanel();
-        Pl2.setBounds(10, 10, 400, 90);
-        receipt.getContentPane().add(Pl2);
-        Pl2.setLayout(null);
-        JButton proc = new JButton("Proceed");
-        proc.setBounds(320, 5, 85, 25);
-        Pl2.add(proc);
-
         info += "Official Receipt of Transaction";
         info += "\n\n\nThis serves as the Control No. of the Transaction: ";
         info += randomString;
@@ -891,15 +876,41 @@ class Transaction extends Prompt{
         info += "\nThank you for choosing Merc Airlines";
         info += "\n~Serving you in achieving your TRAVEL GOALS!~";
 
-
+        JFrame receipt = new JFrame("Receipt");
+        JPanel Plrec = new JPanel();
+        JPanel Pl2 = new JPanel();
         JTextArea text = new JTextArea(info);
         JScrollPane scroll = new JScrollPane(text);
+        receipt.setLayout(null);
+        text.setEditable(false);
+        receipt.setResizable(false);
+        receipt.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        receipt.setVisible(true);
+        receipt.setBounds(500, 50, 410, 650);
+        receipt.getContentPane().add(Plrec);
+        receipt.getContentPane().add(Pl2);
+        Plrec.setBounds(5, 10, 395, 525);
+        Pl2.setBounds(10, 550, 400, 70);
+        Pl2.setLayout(null);
+        JButton proc = new JButton("Proceed");
+        proc.setBounds(150, 5, 100, 25);
+        Pl2.add(proc);
+
         scroll.setPreferredSize(new Dimension(390,500));
         Plrec.add(scroll);
-        text.setEditable(false);
         receipt.getContentPane().setComponentZOrder(Plrec, 1);
         receipt.getContentPane().setComponentZOrder(Pl2, 0);
 
+        // Inheritance
+        Transaction tr = new Transaction();
+        proc.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null, "<html><center>Thank you for choosing Merc Airlines</center></html>", "", JOptionPane.INFORMATION_MESSAGE);
+                receipt.dispose();
+                tr.prompt();
+            }
+        });
     }
 }
 
